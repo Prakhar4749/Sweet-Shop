@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // 1. Handle Specific "User Already Exists" (Returns 409 Conflict)
+    // 1. User already exists → 409
     @ExceptionHandler(UserAlreadyExistsException.class)
     public ResponseEntity<ApiResponse<String>> handleUserAlreadyExists(UserAlreadyExistsException ex) {
         return new ResponseEntity<>(
@@ -18,8 +18,16 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // 2. Handle Logic/Runtime Exceptions (Returns 400 Bad Request)
-    // This catches your current "RuntimeException" if you don't switch to the custom one
+    // 2. Sweet not found → 404
+    @ExceptionHandler(SweetNotFoundException.class)
+    public ResponseEntity<ApiResponse<String>> handleSweetNotFound(SweetNotFoundException ex) {
+        return new ResponseEntity<>(
+                new ApiResponse<>(false, ex.getMessage(), null),
+                HttpStatus.NOT_FOUND
+        );
+    }
+
+    // 3. Bad request / validation / logic errors → 400
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ApiResponse<String>> handleRuntimeException(RuntimeException ex) {
         return new ResponseEntity<>(
@@ -28,11 +36,11 @@ public class GlobalExceptionHandler {
         );
     }
 
-    // 3. Handle unexpected system errors (Returns 500 Internal Server Error)
+    // 4. System errors → 500
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse<String>> handleGeneralException(Exception ex) {
         return new ResponseEntity<>(
-                new ApiResponse<>(false, "An unexpected error occurred: " + ex.getMessage(), null),
+                new ApiResponse<>(false, "An unexpected error occurred", null),
                 HttpStatus.INTERNAL_SERVER_ERROR
         );
     }
