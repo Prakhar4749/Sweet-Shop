@@ -3,6 +3,7 @@ package com.sweetShop.Backend.exception;
 import com.sweetShop.Backend.util.ApiResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
@@ -44,4 +45,21 @@ public class GlobalExceptionHandler {
                 HttpStatus.INTERNAL_SERVER_ERROR
         );
     }
+    // 5. sweet update operation
+    @ExceptionHandler(UnauthorizedOperationException.class)
+    public ResponseEntity<ApiResponse<String>> handleUnauthorizedOperation(UnauthorizedOperationException ex) {
+        return new ResponseEntity<>(
+                new ApiResponse<>(false, ex.getMessage(), null),
+                HttpStatus.FORBIDDEN
+        );
+    }
+
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<ApiResponse<String>> handleAuthorizationDenied(AuthorizationDeniedException ex) {
+        return new ResponseEntity<>(
+                new ApiResponse<>(false, "Access Denied", null),
+                HttpStatus.FORBIDDEN
+        );
+    }
+
 }

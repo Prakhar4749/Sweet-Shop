@@ -37,13 +37,27 @@ public class SweetServiceImpl implements SweetService {
 
     @Override
     public Sweet updateSweet(Long id, SweetRequestDto dto) {
-        Sweet sweet = getSweetById(id); // Re-use get method for DRY code
-        sweet.setName(dto.getName());
-        sweet.setCategory(dto.getCategory());
-        sweet.setPrice(dto.getPrice());
-        sweet.setQuantity(dto.getQuantity());
+        Sweet sweet = getSweetById(id);
+
+        if (dto.getName() != null) {
+            sweet.setName(dto.getName());
+        }
+
+        if (dto.getCategory() != null) {
+            sweet.setCategory(dto.getCategory());
+        }
+
+        if (dto.getPrice() != null) {
+            sweet.setPrice(dto.getPrice());
+        }
+
+        if (dto.getQuantity() != null) {
+            sweet.setQuantity(dto.getQuantity());
+        }
+
         return sweetRepository.save(sweet);
     }
+
 
     @Override
     public void deleteSweet(Long id) {
