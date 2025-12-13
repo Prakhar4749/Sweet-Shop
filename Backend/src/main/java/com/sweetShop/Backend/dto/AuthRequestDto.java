@@ -1,4 +1,13 @@
 package com.sweetShop.Backend.dto;
-public class AuthRequestDto {
-}
 
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class AuthRequestDto {
+    private String username;
+    private String password;
+}
