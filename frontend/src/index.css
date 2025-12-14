@@ -1,0 +1,118 @@
+
+/* 1. Import Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Pacifico&display=swap');
+@import "tailwindcss";
+
+
+
+/* 2. Define Theme Variables */
+@theme {
+  --font-sans: 'Outfit', sans-serif;
+  --font-display: 'Pacifico', cursive;
+}
+
+/* 3. Define CSS Variables for Colors */
+:root {
+  /* Core Palette (HSLA format for transparency support) */
+  --primary: 340 70% 65%;
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 160 40% 92%;
+  --secondary-foreground: 160 40% 25%;
+  
+  --accent: 35 80% 55%;
+  --accent-foreground: 0 0% 100%;
+  
+  --muted: 35 30% 94%;
+  --muted-foreground: 20 15% 45%;
+  
+  --background: 30 50% 98%; /* Cream background */
+  --foreground: 20 30% 15%; /* Dark Brown text */
+  
+  --card: 0 0% 100%;
+  --border: 30 25% 88%;
+  --input: 30 25% 88%;
+  
+  /* Shadows */
+  --shadow-card: 0 4px 20px -4px hsl(340 70% 65% / 0.15);
+  --shadow-card-hover: 0 12px 30px -8px hsl(340 70% 65% / 0.25);
+}
+
+/* 4. Reset & Base Styles */
+body {
+  margin: 0;
+  padding: 0;
+  font-family: var(--font-sans);
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  min-height: 100vh;
+  /* Force Light Mode look */
+  color-scheme: light; 
+}
+
+/* REMOVING THE DEFAULT VITE #ROOT CONSTRAINT */
+#root {
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  text-align: left;
+}
+
+/* 5. Custom Utility Classes (Mapping Variables to Classes) */
+@layer utilities {
+  /* Backgrounds */
+  .bg-background { background-color: hsl(var(--background)); }
+  .bg-primary { background-color: hsl(var(--primary)); }
+  .bg-secondary { background-color: hsl(var(--secondary)); }
+  .bg-accent { background-color: hsl(var(--accent)); }
+  .bg-muted { background-color: hsl(var(--muted)); }
+  .bg-card { background-color: hsl(var(--card)); }
+  
+  /* Text Colors */
+  .text-foreground { color: hsl(var(--foreground)); }
+  .text-primary { color: hsl(var(--primary)); }
+  .text-secondary-foreground { color: hsl(var(--secondary-foreground)); }
+  .text-muted-foreground { color: hsl(var(--muted-foreground)); }
+  .text-white { color: #ffffff; }
+
+  /* Borders */
+  .border-border { border-color: hsl(var(--border)); }
+  .border-input { border-color: hsl(var(--input)); }
+  .border-primary { border-color: hsl(var(--primary)); }
+
+  /* Custom Component Styles */
+  .font-display {
+    font-family: 'Pacifico', cursive;
+  }
+
+  .glass-card {
+    background-color: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+  }
+
+  .gradient-text {
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    background-image: linear-gradient(135deg, hsl(340, 70%, 65%) 0%, hsl(35, 80%, 55%) 100%);
+  }
+
+  .sweet-glow {
+    box-shadow: var(--shadow-card);
+  }
+
+  .sweet-glow-hover:hover {
+    box-shadow: var(--shadow-card-hover);
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
