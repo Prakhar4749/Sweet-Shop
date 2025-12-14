@@ -13,8 +13,6 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     const token = sessionStorage.getItem('token');
-    console.log("[Auth] Checking session token:", token ? "Found" : "Not Found");
-    
     if (token) {
       try {
         const decoded = jwtDecode(token);
@@ -29,48 +27,55 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = async (username, password) => {
-    console.log("[Auth] Attempting login for:", username);
     try {
       const response = await api.post('/auth/login', { username, password });
       
-      // DEBUG: Check structure
-      console.log("[Auth] Login Raw Response:", response.data);
-
-      // Handle response structure: { data: { token: "..." }, ... } OR { token: "..." }
-      const token = response.data.data?.token || response.data.token;
+      // Structure: { success: true, message: "...", data: { token: "..." } }
+      const resData = response.data;
       
-      if (!token) throw new Error("Token not found in response");
+      // Extract token from nested 'data' object
+      // We check resData.data.token (standard) or resData.token (fallback)
+      const token = resData.data?.token || resData.token;
+      
+      if (!token) throw new Error("Token missing from login response");
 
       sessionStorage.setItem('token', token);
       
       const decoded = jwtDecode(token);
       const role = decoded.role || decoded.roles || "USER";
-      
       setUser({ username: decoded.sub, role });
-      toast.success('Welcome back!');
+      
+      // USE BACKEND MESSAGE
+      toast.success(resData.message || 'Welcome back!');
       return true;
     } catch (error) {
       console.error("[Auth] Login Failed:", error);
-      toast.error('Invalid credentials');
+      // Extract backend error message
+      const errorMsg = error.response?.data?.message || 'Login failed. Please check credentials.';
+      toast.error(errorMsg);
       return false;
     }
   };
 
   const register = async (username, password, adminKey) => {
-    console.log("[Auth] Registering user:", username);
     try {
-      await api.post('/auth/register', { username, password, adminKey });
-      toast.success('Registration successful! Please login.');
+      const response = await api.post('/auth/register', { username, password, adminKey });
+      
+      // Structure: { success: true, message: "User Registered...", data: null }
+      const resData = response.data;
+
+      // USE BACKEND MESSAGE
+      toast.success(resData.message || 'Registration successful!');
       return true;
     } catch (error) {
       console.error("[Auth] Registration Failed:", error);
-      toast.error('Registration failed. Username might be taken.');
+      const errorMsg = error.response?.data?.message || 'Registration failed.';
+      toast.error(errorMsg);
       return false;
     }
   };
 
   const logout = () => {
-    console.log("[Auth] Logging out");
     sessionStorage.removeItem('token');
     setUser(null);
     toast.success('Logged out successfully');

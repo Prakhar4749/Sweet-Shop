@@ -8,6 +8,7 @@ import com.sweetShop.Backend.repository.UserRepository;
 import com.sweetShop.Backend.service.AuthService;
 import com.sweetShop.Backend.config.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +33,8 @@ public class AuthServiceImpl implements AuthService {
     // A hardcoded secret key.
     // If a user knows this magic word, they become an Admin instantly.
     // (In a real app, put this in application.properties).
-    private static final String ADMIN_SECRET = "SweetShopMasterKey2025";
+    @Value("${app.admin.key}")
+    private String adminKey;
 
     /**
      * Logic for registering a new user.
@@ -58,7 +60,7 @@ public class AuthServiceImpl implements AuthService {
 
         // 4. Determine the Role (The "Backdoor" Logic).
         // Check: Did the user provide a key? AND Does it match our secret?
-        if (dto.getAdminKey() != null && dto.getAdminKey().equals(ADMIN_SECRET)) {
+        if (dto.getAdminKey() != null && dto.getAdminKey().equals(this.adminKey)) {
             // Yes! Grant them ADMIN powers.
             user.setRole(User.Role.ADMIN);
         } else {

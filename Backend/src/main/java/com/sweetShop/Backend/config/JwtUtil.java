@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import java.security.Key;
 import java.util.Date;
@@ -21,7 +22,8 @@ public class JwtUtil {
 
     // A secret code used to digitally sign the tokens.
     // Like a watermark or wax seal—if anyone tries to fake a token without this key, we will know.
-    public static final String SECRET = "5367566B59703373367639792F423F4528482B4D6251655468576D5A71347437";
+    @Value("${app.jwt.secret}")
+    private String secret;
 
     /**
      * Prints a new ID card (Token) for a user.
@@ -50,7 +52,7 @@ public class JwtUtil {
 
     // Decodes our secret string into a format the crypto library understands.
     private Key getSignKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET);
+        byte[] keyBytes = Decoders.BASE64.decode(this.secret);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 

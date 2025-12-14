@@ -7,12 +7,18 @@ export const useSweets = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  // Helper to handle API errors consistently
- const handleError = (err) => {
+  // Helper to extract backend error message
+  const handleError = (err) => {
     const msg = err.response?.data?.message || err.message || "An unexpected error occurred";
     console.error("[useSweets] Error:", err);
     toast.error(msg);
     return msg;
+  };
+
+  // Helper to extract backend success message
+  const handleSuccess = (res, defaultMsg) => {
+    const msg = res.data?.message || defaultMsg;
+    toast.success(msg);
   };
 
   const fetchSweets = useCallback(async (filters = {}) => {
@@ -24,33 +30,23 @@ export const useSweets = () => {
       if (filters.minPrice) params.minPrice = filters.minPrice;
       if (filters.maxPrice) params.maxPrice = filters.maxPrice;
 
-      console.log("[useSweets] Fetching with params:", params);
-      
       const endpoint = Object.keys(params).length > 0 ? '/sweets/search' : '/sweets';
       const res = await api.get(endpoint, { params });
       
-      // DEBUG: Log the exact structure to help debug
-      console.log("[useSweets] Raw API Response:", res.data);
-
-      // Handle Structure: response.data.data (Array) OR response.data (Array)
-      // Your requirement: response = { data: { data: [...] }, message, status }
-      // So we look inside res.data.data
+      // Structure: { success: true, message: "...", data: [ ...sweets ] }
+      // The array is inside res.data.data
       let data = [];
-      if (res.data && res.data.data) {
-        if (Array.isArray(res.data.data)) {
-           data = res.data.data;
-        } else if (res.data.data.data && Array.isArray(res.data.data.data)) {
-           // Handle potential double nesting edge case
-           data = res.data.data.data;
-        }
+      if (res.data && Array.isArray(res.data.data)) {
+        data = res.data.data;
       } else if (Array.isArray(res.data)) {
+        // Fallback if backend sends direct array
         data = res.data;
       }
 
-      console.log("[useSweets] Parsed Data:", data);
       setSweets(data);
     } catch (err) {
-      setError(handleError(err));
+      const msg = err.response?.data?.message || "Failed to load sweets";
+      setError(msg);
     } finally {
       setIsLoading(false);
     }
@@ -59,9 +55,9 @@ export const useSweets = () => {
   const addSweet = useCallback(async (data) => {
     setIsLoading(true);
     try {
-      await api.post('/sweets', data);
-      toast.success('Sweet created successfully!');
-      await fetchSweets(); // Refresh list
+      const res = await api.post('/sweets', data);
+      handleSuccess(res, 'Sweet added successfully!');
+      await fetchSweets(); 
     } catch (err) {
       handleError(err);
     } finally {
@@ -72,8 +68,8 @@ export const useSweets = () => {
   const updateSweet = useCallback(async (id, data) => {
     setIsLoading(true);
     try {
-      await api.put(`/sweets/${id}`, data);
-      toast.success('Sweet updated successfully!');
+      const res = await api.put(`/sweets/${id}`, data);
+      handleSuccess(res, 'Sweet updated successfully!');
       await fetchSweets();
     } catch (err) {
       handleError(err);
@@ -85,8 +81,8 @@ export const useSweets = () => {
   const deleteSweet = useCallback(async (id) => {
     setIsLoading(true);
     try {
-      await api.delete(`/sweets/${id}`);
-      toast.success('Sweet deleted successfully');
+      const res = await api.delete(`/sweets/${id}`);
+      handleSuccess(res, 'Sweet deleted successfully');
       setSweets(prev => prev.filter(s => s.id !== id));
     } catch (err) {
       handleError(err);
@@ -98,9 +94,8 @@ export const useSweets = () => {
   const restockSweet = useCallback(async (id, quantity) => {
     setIsLoading(true);
     try {
-      // Note: Backend expects query param ?quantity=X
-      await api.post(`/sweets/${id}/restock?quantity=${quantity}`);
-      toast.success('Stock updated!');
+      const res = await api.post(`/sweets/${id}/restock?quantity=${quantity}`);
+      handleSuccess(res, 'Stock updated successfully!');
       await fetchSweets();
     } catch (err) {
       handleError(err);
@@ -111,9 +106,10 @@ export const useSweets = () => {
 
   const purchaseSweet = useCallback(async (id) => {
     try {
-      console.log(`[useSweets] Purchasing ID: ${id}`);
-      await api.post(`/sweets/${id}/purchase`);
-      toast.success('Delicious choice! Order placed.');
+      const res = await api.post(`/sweets/${id}/purchase`);
+      
+      // Show backend message: "Purchase successful" or similar
+      handleSuccess(res, 'Purchase successful!');
       
       // Optimistic update
       setSweets(prev => prev.map(s => 
