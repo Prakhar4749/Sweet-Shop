@@ -1,20 +1,20 @@
 # --- STAGE 1: BUILD ---
-# Use a Maven image to build the app
-FROM maven:3.8.5-openjdk-17 AS build
+# Use the Maven image based on Eclipse Temurin (Standard & Stable)
+FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
 
-# Copy the project files into the container
+# Copy the project files
 COPY . .
 
-# Build the JAR file (Skipping tests to speed up deployment)
+# Build the JAR file
 RUN mvn clean package -DskipTests
 
 # --- STAGE 2: RUN ---
-# Use a smaller, lighter Java image for the actual running app
-FROM openjdk:17-jdk-slim
+# Use Eclipse Temurin for the runtime (Replaces the broken openjdk image)
+FROM eclipse-temurin:17-jdk
 WORKDIR /app
 
-# Copy the JAR file from the 'build' stage to this stage
+# Copy the JAR from the build stage
 COPY --from=build /app/target/*.jar app.jar
 
 # Expose port 8081
