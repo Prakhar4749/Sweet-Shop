@@ -6,6 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -44,7 +45,7 @@ public class SecurityConfig {
                 // This is a protection needed for session-based apps (like banking websites using cookies).
                 // Since we use JWT Tokens (stateless), we don't need this complex check.
                 .csrf(AbstractHttpConfigurer::disable)
-
+                .cors(Customizer.withDefaults())
                 // 2. Set Session Policy to STATELESS.
                 // This means the server has "amnesia." It will NOT remember a user is logged in
                 // between clicks. The user must show their Token (ID Card) for EVERY single request.

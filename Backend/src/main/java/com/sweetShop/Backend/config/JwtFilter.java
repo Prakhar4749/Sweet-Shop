@@ -29,6 +29,14 @@ public class JwtFilter extends OncePerRequestFilter {
     // Service to load full user details (like password/roles) from the database
     private final UserDetailsService userDetailsService;
 
+
+
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) {
+        return request.getServletPath().startsWith("/api/auth");
+    }
+
+
     /**
      * This is the core method that runs for every request.
      * * @param request  The incoming request (e.g., POST /api/sweets)
